@@ -1,0 +1,26 @@
+{
+  "name": "cms",
+  "version": "1.0.0",
+  "description": "web analyzer",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/RetroProgrammist/web-analyzer.git"
+  },
+  "keywords": [
+    "weppalyzer",
+    "web",
+    "analyser",
+    "web",
+    "analyser"
+  ],
+  "author": "Aliaksei Rzhanau",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RetroProgrammist/web-analyzer/issues"
+  },
+  "homepage": "https://github.com/RetroProgrammist/web-analyzer#readme"
+}
