@@ -21,9 +21,11 @@
 используемый **Delimited**: **;**
 
 ### пример:
-| name | **url** |
-| Google | Google.com |
-| Yandex | https://Yandex.com |
+
+| name       | любые столбцы |        **url**     |
+| ---------- |:-------------:| ------------------:|
+| Google     |    что-то     | Google.com         |
+| Yandex     |    что-то     | https://Yandex.com |
 
 После можно запустить команду:
 
