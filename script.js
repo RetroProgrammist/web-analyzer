@@ -8,6 +8,11 @@ import punycode from 'punycode/punycode.js';
 
 let analyze = async function (inFilePath, outFilePath) {
 
+    const bitrix = '1c-bitrix',
+          laravel = 'laravel',
+          opencart = 'opencart',
+          yii = 'yii';
+
     let pos = 0;
     let urls = [];
     const options = {
@@ -33,20 +38,42 @@ let analyze = async function (inFilePath, outFilePath) {
         });
         parser.on('end', async function() {
             console.log(urls);
+            !fs.existsSync(outFilePath) && fs.mkdirSync(outFilePath);
+
             await wappalyzer.init()
 
             const results = await Promise.all(
-                urls.map(async (url) => ({
-                    url,
-                    results: await wappalyzer.open(url).analyze()
-                }))
+                urls.map(async (url) => {
+                    let d = {
+                        url,
+                        results: await wappalyzer.open(url).analyze()
+                    };
+
+                    d.results.technologies.forEach((tech)=>{
+                        if(tech.slug === bitrix) {
+                            fs.appendFileSync(path.normalize(outFilePath+'/bitrix.txt'), url + '\n')
+                        }
+
+                        if(tech.slug === laravel) {
+                            fs.appendFileSync(path.normalize(outFilePath+'/laravel.txt'), url + '\n')
+                        }
+
+                        if(tech.slug === opencart) {
+                            fs.appendFileSync(path.normalize(outFilePath+'/opencart.txt'), url + '\n')
+                        }
+
+                        if(tech.slug === yii) {
+                            fs.appendFileSync(path.normalize(outFilePath+'/yii.txt'), url + '\n')
+                        }
+                    });
+                    return d;
+                })
             )
 
             let format = path.parse(inFilePath);
             let fPath = path.normalize(outFilePath+format.name+'.json');
-            !fs.existsSync(outFilePath) && fs.mkdirSync(outFilePath);
 
-            fs.appendFileSync(fPath, JSON.stringify(results, null, 2))
+            fs.appendFileSync(fPath, JSON.stringify(results, null, 2));
             console.log("THE END");
             await wappalyzer.destroy()
         });
