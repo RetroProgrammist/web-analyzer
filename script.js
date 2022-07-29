@@ -4,19 +4,21 @@ import * as fs from 'fs';
 import {parse} from 'csv-parse';
 import Wappalyzer from 'wappalyzer';
 import normalizeUrl from 'normalize-url';
-import punycode from 'punycode/punycode.js';
 
 let analyze = async function (inFilePath, outFilePath) {
 
     const bitrix = '1c-bitrix',
-          laravel = 'laravel',
-          opencart = 'opencart',
-          yii = 'yii';
+        laravel = 'laravel',
+        opencart = 'opencart',
+        yii = 'yii';
 
     let pos = 0;
     let urls = [];
     const options = {
-        maxWait: 5000,
+        maxDepth: 3,
+        maxUrls: 15,
+        maxWait: 10000,
+        recursive: true,
     };
     const wappalyzer = new Wappalyzer(options);
 
@@ -36,8 +38,14 @@ let analyze = async function (inFilePath, outFilePath) {
                 urls.push(normalizeUrl(val[pos]));
             });
         });
-        parser.on('end', async function() {
+        parser.on('end', async function () {
+           /* urls = [ //test data
+                'http://profildoors-usa.com', //bitrix
+                'https://www.penny-arcade.com/',//Yii
+                'http://shop.montrochelle.virgin.com/',//OpenCart
+            ];*/
             console.log(urls);
+
             !fs.existsSync(outFilePath) && fs.mkdirSync(outFilePath);
 
             await wappalyzer.init()
@@ -49,21 +57,21 @@ let analyze = async function (inFilePath, outFilePath) {
                         results: await wappalyzer.open(url).analyze()
                     };
 
-                    d.results.technologies.forEach((tech)=>{
-                        if(tech.slug === bitrix) {
-                            fs.appendFileSync(path.normalize(outFilePath+'/bitrix.txt'), url + '\n')
+                    d.results.technologies.forEach((tech) => {
+                        if (tech.slug === bitrix) {
+                            fs.appendFileSync(path.normalize(outFilePath + '/bitrix.txt'), url + '\n')
                         }
 
-                        if(tech.slug === laravel) {
-                            fs.appendFileSync(path.normalize(outFilePath+'/laravel.txt'), url + '\n')
+                        if (tech.slug === laravel) {
+                            fs.appendFileSync(path.normalize(outFilePath + '/laravel.txt'), url + '\n')
                         }
 
-                        if(tech.slug === opencart) {
-                            fs.appendFileSync(path.normalize(outFilePath+'/opencart.txt'), url + '\n')
+                        if (tech.slug === opencart) {
+                            fs.appendFileSync(path.normalize(outFilePath + '/opencart.txt'), url + '\n')
                         }
 
-                        if(tech.slug === yii) {
-                            fs.appendFileSync(path.normalize(outFilePath+'/yii.txt'), url + '\n')
+                        if (tech.slug === yii) {
+                            fs.appendFileSync(path.normalize(outFilePath + '/yii.txt'), url + '\n')
                         }
                     });
                     return d;
@@ -71,7 +79,7 @@ let analyze = async function (inFilePath, outFilePath) {
             )
 
             let format = path.parse(inFilePath);
-            let fPath = path.normalize(outFilePath+format.name+'.json');
+            let fPath = path.normalize(outFilePath + format.name + '.json');
 
             fs.appendFileSync(fPath, JSON.stringify(results, null, 2));
             console.log("THE END");
@@ -95,10 +103,10 @@ if (fs.existsSync(outDirPath)) {
 }
 
 const files = fs.readdirSync(inDirPath, {withFileTypes: true});
-files.forEach((value)=>{
-    if(value.isFile() && path.extname(value.name) === '.csv') {
+files.forEach((value) => {
+    if (value.isFile() && path.extname(value.name) === '.csv') {
         let fPath = path.join(inDirPath, value.name);
-        if(fs.existsSync(fPath)) {
+        if (fs.existsSync(fPath)) {
             analyze(fPath, outDirPath);
         }
     }
